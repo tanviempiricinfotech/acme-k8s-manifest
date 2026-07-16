@@ -1,0 +1,263 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-api
+  namespace: payments
+  labels:
+    app: checkout-api
+    team: payments
+    app.kubernetes.io/name: checkout-api
+    app.kubernetes.io/instance: checkout-api-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "47"
+    argocd.argoproj.io/tracking-id: payments:apps/Deployment:payments/checkout-api
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  selector:
+    matchLabels:
+      app: checkout-api
+  template:
+    metadata:
+      labels:
+        app: checkout-api
+        team: payments
+      annotations:
+        checksum/config: 9c1f4ae2b7
+    spec:
+      containers:
+        - name: checkout-api
+          image: registry.acme.internal/payments/checkout-api:3.14.2
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 250m
+              memory: 384Mi
+            limits:
+              cpu: 900m
+              memory: 768Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: 8080
+            initialDelaySeconds: 6
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledger-coordinator
+  namespace: payments
+  labels:
+    app: ledger-coordinator
+    team: payments
+    app.kubernetes.io/name: ledger-coordinator
+    app.kubernetes.io/instance: ledger-coordinator-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/component: quorum
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "12"
+    acme.io/consensus-note: "raft group requires a strict majority of 3 members online"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: ledger-coordinator
+  template:
+    metadata:
+      labels:
+        app: ledger-coordinator
+        team: payments
+        app.kubernetes.io/component: quorum
+    spec:
+      containers:
+        - name: ledger-coordinator
+          image: registry.acme.internal/payments/ledger-coordinator:2.8.1
+          ports:
+            - containerPort: 7070
+          resources:
+            requests:
+              cpu: 300m
+              memory: 640Mi
+            limits:
+              cpu: 1200m
+              memory: 1280Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fraud-scorer
+  namespace: payments
+  labels:
+    app: fraud-scorer
+    team: payments
+    app.kubernetes.io/name: fraud-scorer
+    app.kubernetes.io/instance: fraud-scorer-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: fraud-scorer-0.9.4
+  annotations:
+    deployment.kubernetes.io/revision: "5"
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: fraud-scorer
+  template:
+    metadata:
+      labels:
+        app: fraud-scorer
+        team: payments
+    spec:
+      containers:
+        - name: fraud-scorer
+          image: registry.acme.internal/payments/fraud-scorer:1.2.0
+          resources:
+            requests:
+              cpu: 400m
+              memory: 896Mi
+            limits:
+              cpu: 1500m
+              memory: 1792Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: settlement-reconciler
+  namespace: payments
+  labels:
+    app: settlement-reconciler
+    team: payments
+    app.kubernetes.io/name: settlement-reconciler
+    app.kubernetes.io/instance: settlement-reconciler-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "31"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: settlement-reconciler
+  template:
+    metadata:
+      labels:
+        app: settlement-reconciler
+        team: payments
+    spec:
+      containers:
+        - name: settlement-reconciler
+          image: registry.acme.internal/payments/settlement-reconciler:4.1.7
+          resources:
+            requests:
+              cpu: 450m
+              memory: 512Mi
+            limits:
+              cpu: 1800m
+              memory: 1536Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: refund-api
+  namespace: payments
+  labels:
+    app: refund-api
+    team: payments
+    app.kubernetes.io/name: refund-api
+    app.kubernetes.io/instance: refund-api-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "22"
+spec:
+  replicas: 6
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: refund-api
+  template:
+    metadata:
+      labels:
+        app: refund-api
+        team: payments
+    spec:
+      containers:
+        - name: refund-api
+          image: registry.acme.internal/payments/refund-api:2.19.3
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 200m
+              memory: 320Mi
+            limits:
+              cpu: 700m
+              memory: 640Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: batch-settlement
+  namespace: payments
+  labels:
+    app: batch-settlement
+    team: payments
+    app.kubernetes.io/name: batch-settlement
+    app.kubernetes.io/instance: batch-settlement-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Kustomize
+  annotations:
+    deployment.kubernetes.io/revision: "9"
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: batch-settlement
+  template:
+    metadata:
+      labels:
+        app: batch-settlement
+        team: payments
+    spec:
+      containers:
+        - name: batch-settlement
+          image: registry.acme.internal/payments/batch-settlement:1.6.11
+          resources:
+            requests:
+              cpu: 250m
+              memory: 448Mi
+            limits:
+              cpu: 1000m
+              memory: 896Mi

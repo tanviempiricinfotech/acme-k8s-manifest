@@ -1,0 +1,269 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-frontend
+  namespace: web
+  labels:
+    app: web-frontend
+    team: web
+    app.kubernetes.io/name: web-frontend
+    app.kubernetes.io/instance: web-frontend-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "112"
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  selector:
+    matchLabels:
+      app: web-frontend
+  template:
+    metadata:
+      labels:
+        app: web-frontend
+        team: web
+    spec:
+      containers:
+        - name: web-frontend
+          image: registry.acme.internal/web/web-frontend:8.4.1
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 220m
+              memory: 320Mi
+            limits:
+              cpu: 800m
+              memory: 640Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: web
+  labels:
+    app: api-gateway
+    team: web
+    app.kubernetes.io/name: api-gateway
+    app.kubernetes.io/instance: api-gateway-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "76"
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        team: web
+    spec:
+      containers:
+        - name: api-gateway
+          image: registry.acme.internal/web/api-gateway:6.11.0
+          ports:
+            - containerPort: 8443
+          resources:
+            requests:
+              cpu: 320m
+              memory: 512Mi
+            limits:
+              cpu: 1200m
+              memory: 1024Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: session-cache
+  namespace: web
+  labels:
+    app: session-cache
+    team: web
+    app.kubernetes.io/name: session-cache
+    app.kubernetes.io/instance: session-cache-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "19"
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: session-cache
+  template:
+    metadata:
+      labels:
+        app: session-cache
+        team: web
+    spec:
+      containers:
+        - name: session-cache
+          image: registry.acme.internal/web/session-cache:2.7.3
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: 180m
+              memory: 512Mi
+            limits:
+              cpu: 1500m
+              memory: 2048Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-api
+  namespace: web
+  labels:
+    app: catalog-api
+    team: web
+    app.kubernetes.io/name: catalog-api
+    app.kubernetes.io/instance: catalog-api-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "54"
+    conflict-review/decided: "true"
+    conflict-review/decided-at: "2026-07-09T16:20:44+05:30"
+    conflict-review/ticket: SRE-812
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: catalog-api
+  template:
+    metadata:
+      labels:
+        app: catalog-api
+        team: web
+    spec:
+      containers:
+        - name: catalog-api
+          image: registry.acme.internal/web/catalog-api:4.0.8
+          resources:
+            requests:
+              cpu: 260m
+              memory: 448Mi
+            limits:
+              cpu: 900m
+              memory: 896Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: partner-widget
+  namespace: web
+  labels:
+    app: partner-widget
+    team: web
+    app.kubernetes.io/name: partner-widget
+    app.kubernetes.io/instance: partner-widget-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Kustomize
+  annotations:
+    deployment.kubernetes.io/revision: "21"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: partner-widget
+  template:
+    metadata:
+      labels:
+        app: partner-widget
+        team: web
+    spec:
+      containers:
+        - name: partner-widget
+          image: registry.acme.internal/web/partner-widget:1.3.4
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 200m
+              memory: 288Mi
+            limits:
+              cpu: 700m
+              memory: 576Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-media-proxy
+  namespace: web
+  labels:
+    app: web-media-proxy
+    team: web
+    app.kubernetes.io/name: web-media-proxy
+    app.kubernetes.io/instance: web-media-proxy-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "33"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: web-media-proxy
+  template:
+    metadata:
+      labels:
+        app: web-media-proxy
+        team: web
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: web-media-proxy
+          image: registry.acme.internal/web/web-media-proxy:1.14.2
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 1200m
+              memory: 1536Mi
+            limits:
+              cpu: 2000m
+              memory: 3072Mi
+        - name: istio-proxy
+          image: docker.io/istio/proxyv2:1.21.2
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: payments
+  labels:
+    env: prod
+    team: payments
+    app.kubernetes.io/part-of: acme-platform
+    pod-security.kubernetes.io/enforce: restricted
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: payments-compute-quota
+  namespace: payments
+  annotations:
+    argocd.argoproj.io/tracking-id: payments:v1/ResourceQuota:payments/payments-compute-quota
+spec:
+  hard:
+    requests.cpu: "8"
+    requests.memory: 24Gi
+    limits.cpu: "24"
+    limits.memory: 64Gi
+    pods: "60"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: payments-defaults
+  namespace: payments
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 200m
+        memory: 256Mi
+      max:
+        cpu: "2"
+        memory: 4Gi

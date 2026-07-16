@@ -1,0 +1,9 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: partner-widget-pdb
+  namespace: web
+  annotations:
+    acme.io/change-note: "relaxed after the partner launch freeze ended; drains were blocked at minAvailable 3"
+spec:
+  minAvailable: 1

@@ -1,0 +1,72 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-gateway-pdb
+  namespace: web
+  labels:
+    app: api-gateway
+    team: web
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: session-cache-pdb
+  namespace: web
+  labels:
+    app: session-cache
+    team: web
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: session-cache
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: catalog-api-pdb
+  namespace: web
+  labels:
+    app: catalog-api
+    team: web
+  annotations:
+    conflict-review/decided: "true"
+    conflict-review/ticket: SRE-812
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: catalog-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: partner-widget-pdb
+  namespace: web
+  labels:
+    app: partner-widget
+    team: web
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: partner-widget
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web-media-proxy-pdb
+  namespace: web
+  labels:
+    app: web-media-proxy
+    team: web
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: web-media-proxy

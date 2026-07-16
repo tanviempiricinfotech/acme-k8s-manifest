@@ -1,0 +1,247 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-indexer
+  namespace: search
+  labels:
+    app: search-indexer
+    team: search
+    app.kubernetes.io/name: search-indexer
+    app.kubernetes.io/instance: search-indexer-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "18"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 0
+  selector:
+    matchLabels:
+      app: search-indexer
+  template:
+    metadata:
+      labels:
+        app: search-indexer
+        team: search
+    spec:
+      containers:
+        - name: search-indexer
+          image: registry.acme.internal/search/search-indexer:5.3.9
+          resources:
+            requests:
+              cpu: 350m
+              memory: 768Mi
+            limits:
+              cpu: 1400m
+              memory: 1536Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: query-api
+  namespace: search
+  labels:
+    app: query-api
+    team: search
+    app.kubernetes.io/name: query-api
+    app.kubernetes.io/instance: query-api-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "63"
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: query-api
+  template:
+    metadata:
+      labels:
+        app: query-api
+        team: search
+        tier: serving
+    spec:
+      containers:
+        - name: query-api
+          image: registry.acme.internal/search/query-api:7.2.4
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 300m
+              memory: 512Mi
+            limits:
+              cpu: 1100m
+              memory: 1024Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: suggest-api
+  namespace: search
+  labels:
+    app: suggest_api
+    team: search
+    app.kubernetes.io/name: suggest-api
+    app.kubernetes.io/instance: suggest-api-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: suggest-api-2.1.0
+  annotations:
+    deployment.kubernetes.io/revision: "8"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: suggest_api
+  template:
+    metadata:
+      labels:
+        app: suggest_api
+        team: search
+        tier: serving
+    spec:
+      containers:
+        - name: suggest-api
+          image: registry.acme.internal/search/suggest-api:2.1.0
+          resources:
+            requests:
+              cpu: 220m
+              memory: 384Mi
+            limits:
+              cpu: 800m
+              memory: 768Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autocomplete
+  namespace: search
+  labels:
+    app: autocomplete
+    team: search
+    app.kubernetes.io/name: autocomplete
+    app.kubernetes.io/instance: autocomplete-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "27"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  selector:
+    matchLabels:
+      app: autocomplete
+  template:
+    metadata:
+      labels:
+        app: autocomplete
+        team: search
+    spec:
+      containers:
+        - name: autocomplete
+          image: registry.acme.internal/search/autocomplete:1.9.6
+          resources:
+            requests:
+              cpu: 180m
+              memory: 256Mi
+            limits:
+              cpu: 600m
+              memory: 512Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-reindexer
+  namespace: search
+  labels:
+    app: search-reindexer
+    team: search
+    app.kubernetes.io/name: search-reindexer
+    app.kubernetes.io/instance: search-reindexer-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "6"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: search-reindexer
+  template:
+    metadata:
+      labels:
+        app: search-reindexer
+        team: search
+    spec:
+      containers:
+        - name: search-reindexer
+          image: registry.acme.internal/search/search-reindexer:0.8.3
+          ports:
+            - containerPort: 9090
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spelling-gateway
+  namespace: search
+  labels:
+    app: spelling-gateway
+    team: search
+    app.kubernetes.io/name: spelling-gateway
+    app.kubernetes.io/instance: spelling-gateway-prod
+    app.kubernetes.io/part-of: acme-platform
+    app.kubernetes.io/managed-by: Argo CD
+  annotations:
+    deployment.kubernetes.io/revision: "14"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: spelling-gateway
+  template:
+    metadata:
+      labels:
+        app: spelling-gateway
+        team: search
+    spec:
+      nodeSelector:
+        topology.kubernetes.io/zone: ap-south-1a
+      containers:
+        - name: spelling-gateway
+          image: registry.acme.internal/search/spelling-gateway:3.0.2
+          resources:
+            requests:
+              cpu: 700m
+              memory: 1024Mi
+            limits:
+              cpu: 1600m
+              memory: 2048Mi

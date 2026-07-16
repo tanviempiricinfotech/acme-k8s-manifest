@@ -1,0 +1,85 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: checkout-api-pdb
+  namespace: payments
+  labels:
+    app: checkout-api
+    team: payments
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: checkout-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ledger-coordinator-pdb
+  namespace: payments
+  labels:
+    app: ledger-coordinator
+    team: payments
+  annotations:
+    acme.io/owner-note: "raft majority must stay online during any voluntary disruption"
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: ledger-coordinator
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: fraud-scorer-pdb
+  namespace: payments
+  labels:
+    app: fraud-scorer
+    team: payments
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: fraud-scorer
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: settlement-reconciler-pdb
+  namespace: payments
+  labels:
+    app: settlement-reconciler
+    team: payments
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: settlement-reconciler
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: refund-api-pdb
+  namespace: payments
+  labels:
+    app: refund-api
+    team: payments
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: refund-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: batch-settlement-pdb
+  namespace: payments
+  labels:
+    app: batch-settlement
+    team: payments
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: batch-settlement

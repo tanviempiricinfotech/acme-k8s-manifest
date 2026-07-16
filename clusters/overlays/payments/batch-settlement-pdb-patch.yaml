@@ -1,0 +1,9 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: batch-settlement-pdb
+  namespace: payments
+  annotations:
+    acme.io/change-note: "raised during quarter-end close to protect in-flight settlement batches"
+spec:
+  minAvailable: 4

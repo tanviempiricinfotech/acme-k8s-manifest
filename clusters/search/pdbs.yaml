@@ -1,0 +1,98 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: search-indexer-pdb
+  namespace: search
+  labels:
+    app: search-indexer
+    team: search
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: search-indexer
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: serving-tier-pdb
+  namespace: search
+  labels:
+    team: search
+  annotations:
+    acme.io/owner-note: "shared budget for the serving tier"
+spec:
+  minAvailable: 4
+  selector:
+    matchLabels:
+      tier: serving
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: query-api-pdb
+  namespace: search
+  labels:
+    app: query-api
+    team: search
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: query-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: suggest-api-pdb
+  namespace: search
+  labels:
+    app: suggest-api
+    team: search
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: suggest-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: autocomplete-pdb
+  namespace: search
+  labels:
+    app: autocomplete
+    team: search
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: autocomplete
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: search-reindexer-pdb
+  namespace: search
+  labels:
+    app: search-reindexer
+    team: search
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: search-reindexer
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: spelling-gateway-pdb
+  namespace: search
+  labels:
+    app: spelling-gateway
+    team: search
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: spelling-gateway
