@@ -25,5 +25,4 @@ spec:
           cpu: 2000m
           memory: 2560Mi
         controlledResources:
-          - cpu
           - memory
