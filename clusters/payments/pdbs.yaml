@@ -23,7 +23,7 @@ metadata:
   annotations:
     acme.io/owner-note: "raft majority must stay online during any voluntary disruption"
 spec:
-  minAvailable: 3
+  minAvailable: 2
   selector:
     matchLabels:
       app: ledger-coordinator
