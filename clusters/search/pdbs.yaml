@@ -53,7 +53,7 @@ spec:
   minAvailable: 2
   selector:
     matchLabels:
-      app: suggest_api
+      app: suggest-api
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
